@@ -7,6 +7,8 @@ import org.bmit.flightreservation.model.Reservation;
 import org.bmit.flightreservation.repos.FlightRepository;
 import org.bmit.flightreservation.repos.PassengerRepository;
 import org.bmit.flightreservation.repos.ReservationRepository;
+import org.bmit.flightreservation.util.EmailUtil;
+import org.bmit.flightreservation.util.PDFGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,12 @@ public class ReservationServiceImpl implements ReservationService {
 	
 	@Autowired
 	ReservationRepository reservationRepository;
+	
+	@Autowired
+	PDFGenerator pdfGenerator;
+	
+	@Autowired
+	EmailUtil emailUtil;
 
 	@Override
 	public Reservation bookFlight(ReservationRequest request) {
@@ -38,6 +46,9 @@ public class ReservationServiceImpl implements ReservationService {
 		reservation.setPassenger(savedPassenger);
 		reservation.setPassenger(passenger);
 		Reservation savedReservation = reservationRepository.save(reservation);
+		String filePath = "D:\\IT_Spiders\\resrvation"+savedReservation.getId()+".pdf";
+		pdfGenerator.generateItineary(savedReservation, filePath);
+		emailUtil.sendItinerary("bmitshearise@gmail.com", filePath);
 		return savedReservation;
 	}
 
